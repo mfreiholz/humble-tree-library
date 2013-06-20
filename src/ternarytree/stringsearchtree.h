@@ -22,7 +22,7 @@ bool prefix_check_default_impl(const std::string &prefix, const std::string &wor
 
   \author Manuel Freiholz
 */
-class StringSearchTree
+class HTL_EXPORT_API StringSearchTree
 {
 public:
   /*!
@@ -109,7 +109,7 @@ private:
 };
 
 
-class StringSearchTreeNode
+class HTL_EXPORT_API StringSearchTreeNode
 {
   friend class StringSearchTree;
 public:

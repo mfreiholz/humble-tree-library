@@ -5,7 +5,7 @@
 #if defined(HTL_EXPORT)
   #define HTL_EXPORT_API __declspec(dllexport)
 #else
-  #define HTL_EXPORT_API __declspec(dllimport)
+  #define HTL_EXPORT_API
 #endif
 
 // Namespace define.
