@@ -11,14 +11,13 @@ Feel free to contribute.
 
 Rules to contribute
 ===================
-#1 Keep it simple and readable.
-#2 Use well explaining comments in header files.
+1. Keep it simple and readable.
+2. Use well explaining comments in header files.
 
 
 Code style
 ==========
-Tab: No tabs, only spaces.
-Ident: 2
+No tabs, only spaces (Ident=2).
 
 
 Dependencies
@@ -29,5 +28,5 @@ The only dependency which should be used is the standard template library (STL)
 
 Developers
 ==========
-Manuel Freiholz
-...<your name?>...
+- Manuel Freiholz
+- ...\<your name?\>...
