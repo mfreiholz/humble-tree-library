@@ -1,5 +1,7 @@
 #include "ternarytree/stringsearchtree.h"
 
+#include <stdio.h>
+
 int main(int argc, char **argv)
 {
   htl::StringSearchTree tree;

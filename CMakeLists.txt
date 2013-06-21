@@ -5,7 +5,9 @@ set(sources
   src/ternarytree/stringsearchtree.cpp
 )
 
-add_definitions(/Zc:wchar_t-)
+if(WIN32)
+  add_definitions(/Zc:wchar_t-)
+endif(WIN32)
 
 include_directories(src)
 
