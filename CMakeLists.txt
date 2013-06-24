@@ -8,6 +8,7 @@ set(sources
 
 if(WIN32)
   add_definitions(/Zc:wchar_t-)
+  add_definitions(/INCREMENTAL:NO)
 endif(WIN32)
 
 include_directories(src)

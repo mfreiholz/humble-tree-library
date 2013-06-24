@@ -19,7 +19,10 @@ RadixTree::~RadixTree()
 
 void RadixTree::insert(const std::string &key, const std::string &value)
 {
-  insert(*_root, key, value);
+  if (value.empty())
+    insert(*_root, key, key);
+  else
+    insert(*_root, key, value);
 }
 
 void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::string &value)
@@ -65,6 +68,7 @@ void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::s
     
     node._key = key.substr(0, match_count);
     node._real = false;
+    node._value.clear();  // Fix.
     node._children.clear();
     node._children.push_back(n1);
     
