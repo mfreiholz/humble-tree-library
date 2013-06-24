@@ -3,6 +3,7 @@ project(humble_tree_library)
 
 set(sources
   src/ternarytree/stringsearchtree.cpp
+  src/radixtree/radixtree.cpp
 )
 
 if(WIN32)

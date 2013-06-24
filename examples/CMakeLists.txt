@@ -1,1 +1,2 @@
 add_subdirectory(stringsearchtree)
+add_subdirectory(radixtree)
