@@ -101,6 +101,31 @@ void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::s
   }
 }
 
+void RadixTree::find(const std::string &key)
+{
+  find(key, *_root, *_root);
+}
+
+void RadixTree::find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node)
+{
+  const unsigned int match_count = node.getNumberOfMatchingBytes(key);
+  
+  // If the key matches the node's key, we have a match.
+  if (match_count == key.length() && match_count == node._key.length()) {
+    // Found: "node"
+  }
+  // Either we are at the ROOT node or we need to traverse the children.
+  else if (&node == _root || (match_count < key.length() && match_count >= node._key.length())) {
+    const std::string new_key = key.substr(match_count, std::string::npos);
+    for (size_t i = 0; i < node._children.size(); ++i) {
+      if (node._children[i]->_key.find(new_key[0]) == 0) {
+        find(new_key, node, *node._children[i]);
+        break;
+      }
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // RadixTreeNode
 ///////////////////////////////////////////////////////////////////////////////
@@ -115,6 +140,21 @@ RadixTreeNode::RadixTreeNode()
 
 RadixTreeNode::~RadixTreeNode()
 {
+}
+
+const std::string& RadixTreeNode::getKey() const
+{
+  return _key;
+}
+
+const std::string& RadixTreeNode::getValue() const
+{
+  return _value;
+}
+
+bool RadixTreeNode::isReal() const
+{
+  return _real;
 }
 
 unsigned int RadixTreeNode::getNumberOfMatchingBytes(const std::string &key) const

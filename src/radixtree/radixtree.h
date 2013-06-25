@@ -19,6 +19,9 @@ public:
   void insert(const std::string &key, const std::string &value = std::string());
   void insert(RadixTreeNode &node, const std::string &key, const std::string &value);
   
+  void find(const std::string &key);
+  void find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node);
+  
 private:
   RadixTreeNode *_root;
   unsigned long long _size;
@@ -31,6 +34,11 @@ class HTL_EXPORT_API RadixTreeNode
 public:
   RadixTreeNode();
   ~RadixTreeNode();
+  
+  const std::string& getKey() const;
+  const std::string& getValue() const;
+  bool isReal() const;
+  
   unsigned int getNumberOfMatchingBytes(const std::string &key) const;
 
 private:
