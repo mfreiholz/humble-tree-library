@@ -13,14 +13,45 @@ class RadixTreeNode;
 class HTL_EXPORT_API RadixTree
 {
 public:
+  enum Errors
+  {
+    NO_ERROR,
+    DUPLICATE_KEY_ERROR
+  };
+
   RadixTree();
   ~RadixTree();
   
-  void insert(const std::string &key, const std::string &value = std::string());
-  void insert(RadixTreeNode &node, const std::string &key, const std::string &value);
+  /*
+    Compares the given specified tree-node with the internal root node of the tree.
+    
+    \param[in] node
+      The node which should be compared with the root-node.
+      
+    \return Returns <code>true</code>, if the given <code>node</code> refers
+      to the tree's internal root-node.
+  */
+  bool isRoot(const RadixTreeNode &node) const;
   
-  void find(const std::string &key);
-  void find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node);
+  int insert(const std::string &key, const std::string &value = std::string());
+  int insert(RadixTreeNode &node, const std::string &key, const std::string &value);
+  
+  const RadixTreeNode& find(const std::string &key);
+  
+  /*
+    Searches for the node with the given <code>key</code>.
+    
+    \param[in] key
+      The exact key of the node.
+    \param[in] parent
+      The parent node of the <code>node</code>.
+    \param[in] node
+      The node object where the search starts.
+      
+    \return Returns the node which matches the <code>key</code>. If no node has been found,
+      the root node will return.
+  */
+  const RadixTreeNode& find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node);
   
 private:
   RadixTreeNode *_root;

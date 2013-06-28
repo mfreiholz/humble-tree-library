@@ -17,46 +17,48 @@ RadixTree::~RadixTree()
 {
 }
 
-void RadixTree::insert(const std::string &key, const std::string &value)
+bool RadixTree::isRoot(const RadixTreeNode &node) const
 {
-  if (value.empty())
-    insert(*_root, key, key);
-  else
-    insert(*_root, key, value);
+  return (&node == _root);
 }
 
-void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::string &value)
+int RadixTree::insert(const std::string &key, const std::string &value)
+{
+  if (value.empty())
+    return insert(*_root, key, key);
+  else
+    return insert(*_root, key, value);
+}
+
+int RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::string &value)
 {
   const unsigned int match_count = node.getNumberOfMatchingBytes(key);
   
   // We are either at the root node or we need to go down the tree.
   if (&node == _root || match_count == 0 || (match_count < key.length() && match_count >= node._key.length())) {
-    bool found = false;
     const std::string new_key = key.substr(match_count, std::string::npos);
     for (size_t i = 0; i < node._children.size(); ++i) {
       if (node._children[i]->_key.find(new_key[0]) == 0) {
-        found = true;
-        insert(*node._children[i], new_key, value);
-        break;
+        return insert(*node._children[i], new_key, value);
       }
     }
     
-    if (!found) {
-      RadixTreeNode *n = new RadixTreeNode();
-      n->_key = new_key;
-      n->_real = true;
-      n->_value = value;
-      node._children.push_back(n);
-    }
+    // No node with prefix "key" found, create a new one.
+    RadixTreeNode *n = new RadixTreeNode();
+    n->_key = new_key;
+    n->_real = true;
+    n->_value = value;
+    node._children.push_back(n);
+    return NO_ERROR;
   }
   // There is an exact match. Make the current node as data node.
   else if (match_count == key.length() && match_count == node._key.length()) {
     if (node._real) {
-      // Duplicate key.
-      return;
+      return DUPLICATE_KEY_ERROR;
     }
     node._real = true;
     node._value = value;
+    return NO_ERROR;
   }
   // We need to split this node. Because the key to be inserted is a prefix of the current node's key.
   else if (match_count > 0 && match_count < node._key.length()) {
@@ -84,6 +86,7 @@ void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::s
       node._real = true;
       node._value = value;
     }
+    return NO_ERROR;
   }
   // This key needs to be added as the child of the current "node".
   else {
@@ -98,32 +101,35 @@ void RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::s
     node._value = value;
     
     node._children.push_back(n);
+    return NO_ERROR;
   }
 }
 
-void RadixTree::find(const std::string &key)
+const RadixTreeNode& RadixTree::find(const std::string &key)
 {
-  find(key, *_root, *_root);
+  return find(key, *_root, *_root);
 }
 
-void RadixTree::find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node)
+const RadixTreeNode& RadixTree::find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node)
 {
   const unsigned int match_count = node.getNumberOfMatchingBytes(key);
   
   // If the key matches the node's key, we have a match.
   if (match_count == key.length() && match_count == node._key.length()) {
     // Found: "node"
+    return node;
   }
   // Either we are at the ROOT node or we need to traverse the children.
   else if (&node == _root || (match_count < key.length() && match_count >= node._key.length())) {
     const std::string new_key = key.substr(match_count, std::string::npos);
     for (size_t i = 0; i < node._children.size(); ++i) {
       if (node._children[i]->_key.find(new_key[0]) == 0) {
-        find(new_key, node, *node._children[i]);
+        return find(new_key, node, *node._children[i]);
         break;
       }
     }
   }
+  return *_root;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
