@@ -15,6 +15,8 @@ RadixTree::RadixTree()
 
 RadixTree::~RadixTree()
 {
+  FreeData(_root, true);
+  _root = NULL;
 }
 
 bool RadixTree::isRoot(const RadixTreeNode &node) const
@@ -105,31 +107,57 @@ int RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::st
   }
 }
 
-const RadixTreeNode& RadixTree::find(const std::string &key)
+int RadixTree::remove(const std::string &key)
 {
-  return find(key, *_root, *_root);
+  RadixTreeNodeTraversalRemoveHelper helper(this);
+  find(key, *_root, *_root, helper);
+  return helper.getResult();
 }
 
-const RadixTreeNode& RadixTree::find(const std::string &key, const RadixTreeNode &parent, const RadixTreeNode &node)
+const RadixTreeNode& RadixTree::find(const std::string &key)
+{
+  RadixTreeNodeTraversalFindHelper helper;
+  find(key, *_root, *_root, helper);
+
+  if (helper.hasFound())
+    return helper.getResult();
+  return *_root;
+}
+
+void RadixTree::find(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node, RadixTreeNodeTraversalHelper &helper)
 {
   const unsigned int match_count = node.getNumberOfMatchingBytes(key);
   
   // If the key matches the node's key, we have a match.
   if (match_count == key.length() && match_count == node._key.length()) {
     // Found: "node"
-    return node;
+    helper.match(key, parent, node);
   }
   // Either we are at the ROOT node or we need to traverse the children.
   else if (&node == _root || (match_count < key.length() && match_count >= node._key.length())) {
     const std::string new_key = key.substr(match_count, std::string::npos);
     for (size_t i = 0; i < node._children.size(); ++i) {
       if (node._children[i]->_key.find(new_key[0]) == 0) {
-        return find(new_key, node, *node._children[i]);
+        find(new_key, node, *node._children[i], helper);
         break;
       }
     }
   }
-  return *_root;
+}
+
+void RadixTree::FreeData(RadixTreeNode *node, bool recursive)
+{
+  std::vector<RadixTreeNode*> vec;
+  vec.push_back(node);
+  while (!vec.empty()) {
+    RadixTreeNode *n = vec.front();
+    vec.erase(vec.begin());
+    if (recursive) {
+      for (size_t i = 0; i < n->_children.size(); ++i)
+        vec.push_back(n->_children[i]);
+    }
+    delete n;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -172,6 +200,67 @@ unsigned int RadixTreeNode::getNumberOfMatchingBytes(const std::string &key) con
     ++match_count;
   }
   return match_count;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Traversal helpers.
+///////////////////////////////////////////////////////////////////////////////
+
+void RadixTreeNodeTraversalFindHelper::match(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node)
+{
+  if (node.isReal()) {
+    _result = &node;
+  }
+}
+
+void RadixTreeNodeTraversalRemoveHelper::match(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node)
+{
+  if (_tree && _tree->isRoot(node)) {
+    return;
+  }
+
+  // If the node does not have any childs,
+  // we need to remove it from it's parent child list.
+  // Note: As soon as we removed the "node" from parent's node
+  // child list, the "node" variable is invalid!  
+  if (node._children.size() == 0) {
+
+    for (size_t i = 0; i < parent._children.size(); ++i) {
+      if (parent._children[i] == &node) {
+        RadixTreeNode *child = parent._children[i];
+        parent._children.erase(parent._children.begin() + i);
+        delete child;
+        break;
+      }
+    }
+
+    // If the parent node is not a real node and does only have
+    // one child after we removed "node", we need to merge it.
+    if (parent._children.size() == 1 && !parent._real && !_tree->isRoot(parent)) {
+      RadixTreeNode *child = parent._children[0];
+      parent._key     += child->_key;
+      parent._value    = child->_value;
+      parent._real     = child->_real;
+      parent._children = child->_children;  // TODO(mfreiholz) This can be a big copy process? We need to move it.
+      delete child;
+    }
+  }
+  // We need to merge the single child of the node with
+  // itself, and remove the child nodes.
+  else if (node._children.size() == 1) {
+    RadixTreeNode *child = node._children[0];
+    node._key      += child->_key;
+    node._value     = child->_value;
+    node._real      = child->_real;
+    node._children  = child->_children;  // TODO(mfreiholz) same here...
+    delete child;
+  }
+  // The node does have more than only one child.
+  // We can simply mark the found node as NOT real.
+  else {
+    node._real = false;
+  }
+  _result = RadixTree::NO_ERROR;
 }
 
 NAMESPACE_END
