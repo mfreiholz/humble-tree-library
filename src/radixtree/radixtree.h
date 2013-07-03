@@ -37,12 +37,21 @@ public:
   bool isRoot(const RadixTreeNode &node) const;
   
   /*
-    ...
+    Inserts a new <code>value</code> into the tree and associates it with the <code>key</code>.
+
+    \param[in] key
+      The key which is used to find the saved <code>value</code>.
+    \param[in] value
+      The data which should be saved in the tree.
+
+    \return Returns <code>NO_ERROR</code>, if the value has been inserted.
+      If the tree already contains a value saved by <code>key</code>, the method
+      returns a <code>DUPLICATE_KEY_ERROR</code> code.
   */
   int insert(const std::string &key, const std::string &value = std::string());
-  
+
   /*
-    ...
+    For internal use only!
   */
   int insert(RadixTreeNode &node, const std::string &key, const std::string &value);
   
@@ -58,24 +67,29 @@ public:
   int remove(const std::string &key);
   
   /*
-    ...
+    Searches for a node by its key.
+
+    \param[in] key
+      The key of the node.
+
+    \return Returns the RadixTreeNode object. If the node could not be found, the method
+      will return the root-node of the tree. Use RadixTree::isRoot() to prove that.
   */
   const RadixTreeNode& find(const std::string &key);
   
   /*
-    Searches for the node with the given <code>key</code>.
-    
-    \param[in] key
-      The exact key of the node.
-    \param[in] parent
-      The parent node of the <code>node</code>.
-    \param[in] node
-      The node object where the search starts.
-    \param[in] helper
-      ...
+    For internal use only!
   */
   void find(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node, RadixTreeNodeTraversalHelper &helper);
 
+  /*
+    Deletes a RadixTreeNode completely.
+    If <code>recursive</code> is <code>true</code>, the method also deletes all
+    child nodes of the <code>node</code>.
+
+    \param[in] node
+    \param[in] recursive
+  */
   static void FreeData(RadixTreeNode *node, bool recursive);
   
 private:
