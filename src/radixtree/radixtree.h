@@ -82,6 +82,9 @@ public:
   */
   void find(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node, RadixTreeNodeTraversalHelper &helper);
 
+  int findPrefix(const std::string &key, unsigned int max, std::vector<const RadixTreeNode*> &nodes);
+  const RadixTreeNode& findPrefix(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node);
+
   /*
     Deletes a RadixTreeNode completely.
     If <code>recursive</code> is <code>true</code>, the method also deletes all

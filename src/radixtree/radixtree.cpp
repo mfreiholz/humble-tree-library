@@ -145,6 +145,48 @@ void RadixTree::find(const std::string &key, RadixTreeNode &parent, RadixTreeNod
   }
 }
 
+int RadixTree::findPrefix(const std::string &key, unsigned int max, std::vector<const RadixTreeNode*> &nodes)
+{
+  const RadixTreeNode &node = findPrefix(key, *_root, *_root);
+  if (isRoot(node))
+    return NODE_NOT_FOUND_ERROR;
+
+  std::vector<const RadixTreeNode*> vec;
+  vec.push_back(&node);
+
+  while (!vec.empty()) {
+    const RadixTreeNode *n = vec.front();
+    vec.erase(vec.begin());
+
+    if (n->_real)
+      nodes.push_back(n);
+    if (nodes.size() >= max)
+      break;
+    for (int i = 0; i < n->_children.size(); ++i)
+      vec.push_back(n->_children[i]);
+  }
+
+  return NO_ERROR;
+}
+
+const RadixTreeNode& RadixTree::findPrefix(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node)
+{
+  const unsigned int match_count = node.getNumberOfMatchingBytes(key);
+
+  if (match_count == key.length() && match_count <= node._key.length()) {
+    return node;
+  }
+  else if (isRoot(node) || (match_count < key.length() && match_count >= node._key.length())) {
+    const std::string new_key = key.substr(match_count, std::string::npos);
+    for (size_t i = 0; i < node._children.size(); ++i) {
+      if (node._children[i]->_key.find(new_key[0]) == 0) {
+        return findPrefix(new_key, node, *node._children[i]);
+        break;
+      }
+    }
+  }
+}
+
 void RadixTree::FreeData(RadixTreeNode *node, bool recursive)
 {
   std::vector<RadixTreeNode*> vec;

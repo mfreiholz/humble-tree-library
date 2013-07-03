@@ -17,6 +17,9 @@ int main(int argc, char **argv)
     const htl::RadixTreeNode &n3 = t.find("abhöreinheit");
     if (!t.isRoot(n3)) fprintf(stdout, "OK #3 (%s)\n", n3.getValue().c_str());
 
+    std::vector<const htl::RadixTreeNode*> nv4;
+    if (t.findPrefix("abh", 10, nv4) == htl::RadixTree::NO_ERROR && nv4.size() == 2) fprintf(stdout, "OK #4 (%d)\n", nv4.size());
+
     t.remove("abhörmaßnahme");
     t.remove("feuchtwedel");
     t.remove("abhöreinheit");
