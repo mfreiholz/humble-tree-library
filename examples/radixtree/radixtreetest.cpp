@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <cstdlib>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -11,6 +12,8 @@ unsigned long long get_current_timestamp_ms()
 {
 #ifdef _WIN32
   ULONGLONG ts = GetTickCount64();
+#else
+  unsigned long long ts = 0;
 #endif
   return ts;
 }
