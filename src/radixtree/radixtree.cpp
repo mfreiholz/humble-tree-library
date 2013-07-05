@@ -51,16 +51,16 @@ int RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::st
     n->_real = true;
     n->_value = value;
     node._children.push_back(n);
-    return NO_ERROR;
+    return ET_NO_ERROR;
   }
   // There is an exact match. Make the current node as data node.
   else if (match_count == key.length() && match_count == node._key.length()) {
     if (node._real) {
-      return DUPLICATE_KEY_ERROR;
+      return ET_DUPLICATE_KEY_ERROR;
     }
     node._real = true;
     node._value = value;
-    return NO_ERROR;
+    return ET_NO_ERROR;
   }
   // We need to split this node. Because the key to be inserted is a prefix of the current node's key.
   else if (match_count > 0 && match_count < node._key.length()) {
@@ -88,7 +88,7 @@ int RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::st
       node._real = true;
       node._value = value;
     }
-    return NO_ERROR;
+    return ET_NO_ERROR;
   }
   // This key needs to be added as the child of the current "node".
   else {
@@ -103,7 +103,7 @@ int RadixTree::insert(RadixTreeNode &node, const std::string &key, const std::st
     node._value = value;
     
     node._children.push_back(n);
-    return NO_ERROR;
+    return ET_NO_ERROR;
   }
 }
 
@@ -149,7 +149,7 @@ int RadixTree::findPrefix(const std::string &key, unsigned int max, std::vector<
 {
   const RadixTreeNode &node = findPrefix(key, *_root, *_root);
   if (isRoot(node))
-    return NODE_NOT_FOUND_ERROR;
+    return ET_NODE_NOT_FOUND_ERROR;
 
   std::vector<const RadixTreeNode*> vec;
   vec.push_back(&node);
@@ -166,7 +166,7 @@ int RadixTree::findPrefix(const std::string &key, unsigned int max, std::vector<
       vec.push_back(n->_children[i]);
   }
 
-  return NO_ERROR;
+  return ET_NO_ERROR;
 }
 
 const RadixTreeNode& RadixTree::findPrefix(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node)
@@ -192,8 +192,8 @@ void RadixTree::FreeData(RadixTreeNode *node, bool recursive)
   std::vector<RadixTreeNode*> vec;
   vec.push_back(node);
   while (!vec.empty()) {
-    RadixTreeNode *n = vec.front();
-    vec.erase(vec.begin());
+    RadixTreeNode *n = vec.at(vec.size() - 1);
+    vec.pop_back();
     if (recursive) {
       for (size_t i = 0; i < n->_children.size(); ++i)
         vec.push_back(n->_children[i]);
@@ -302,7 +302,7 @@ void RadixTreeNodeTraversalRemoveHelper::match(const std::string &key, RadixTree
   else {
     node._real = false;
   }
-  _result = RadixTree::NO_ERROR;
+  _result = RadixTree::ET_NO_ERROR;
 }
 
 NAMESPACE_END

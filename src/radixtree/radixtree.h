@@ -17,9 +17,9 @@ class HTL_EXPORT_API RadixTree
 public:
   enum ErrorType
   {
-    NO_ERROR,
-    DUPLICATE_KEY_ERROR,
-    NODE_NOT_FOUND_ERROR
+    ET_NO_ERROR,
+    ET_DUPLICATE_KEY_ERROR,
+    ET_NODE_NOT_FOUND_ERROR
   };
 
   RadixTree();
@@ -49,11 +49,6 @@ public:
       returns a <code>DUPLICATE_KEY_ERROR</code> code.
   */
   int insert(const std::string &key, const std::string &value = std::string());
-
-  /*
-    For internal use only!
-  */
-  int insert(RadixTreeNode &node, const std::string &key, const std::string &value);
   
   /*
     Removes a node from tree.
@@ -76,14 +71,21 @@ public:
       will return the root-node of the tree. Use RadixTree::isRoot() to prove that.
   */
   const RadixTreeNode& find(const std::string &key);
-  
-  /*
-    For internal use only!
-  */
-  void find(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node, RadixTreeNodeTraversalHelper &helper);
 
+  /*
+    Searches for nodes which keys begins with the given prefix <code>key</code>.
+
+    \param[in] key
+      The prefix string which is used as query for the search.
+    \param[in] max
+      The maximum number of nodes, which the result list <code>nodes</code> should hold.
+    \param[out] nodes
+      Will be filled with found nodes, according to the prefix.
+
+    \return Returns NO_ERROR, if the search has found a few results. If nothing has been found,
+      it will return NODE_NOT_FOUND_ERROR.
+  */
   int findPrefix(const std::string &key, unsigned int max, std::vector<const RadixTreeNode*> &nodes);
-  const RadixTreeNode& findPrefix(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node);
 
   /*
     Deletes a RadixTreeNode completely.
@@ -92,8 +94,14 @@ public:
 
     \param[in] node
     \param[in] recursive
+    \pre-condition (node != NULL)
   */
   static void FreeData(RadixTreeNode *node, bool recursive);
+
+protected:
+  int insert(RadixTreeNode &node, const std::string &key, const std::string &value);
+  void find(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node, RadixTreeNodeTraversalHelper &helper);
+  const RadixTreeNode& findPrefix(const std::string &key, RadixTreeNode &parent, RadixTreeNode &node);
   
 private:
   RadixTreeNode *_root;
@@ -165,7 +173,7 @@ class HTL_EXPORT_API RadixTreeNodeTraversalRemoveHelper
 {
 public:
   inline RadixTreeNodeTraversalRemoveHelper(RadixTree *tree)
-    : _result(RadixTree::NODE_NOT_FOUND_ERROR),
+    : _result(RadixTree::ET_NODE_NOT_FOUND_ERROR),
       _tree(tree)
   {
   }
